@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, Select, RTE } from "../index";
 import appwriteService from "../../appwrite/conf";
@@ -23,16 +23,20 @@ function PostForm({ post }) {
     //this is the form data coming from the user
     //if post is there
     if (post) {
-      const file = data.image[0]
-        ? appwriteService.uploadFile(data.image[0])
-        : null;
+      const file =
+        data.image && data.image[0]
+          ? appwriteService.uploadFile(data.image[0])
+          : null;
       //update the image and delete the old one
       if (file) {
+        console.log("New File has been uploaded:", file);
         appwriteService.deleteFile(post.featuredImage);
       }
+
+      //This ensures that if no new file is uploaded during an edit, the existing featuredImage is retained.
       const dbPost = await appwriteService.updatePost(post.$id, {
         ...data,
-        featuredImage: file ? file.$id : undefined,
+        featuredImage: file ? file.$id : post.featuredImage,
       });
 
       if (dbPost) {
