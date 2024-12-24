@@ -22,6 +22,13 @@ function Post() {
     } else navigate("/");
   }, [slug, navigate]);
 
+  useEffect(() => {
+    const element = document.getElementById("postContent");
+    if (element) {
+      element.innerHTML = post?.content ?? "";
+    }
+  }, [post?.content]);
+
   const deletePost = () => {
     appwriteService.deletePost(post.$id).then((status) => {
       if (status) {
@@ -57,7 +64,9 @@ function Post() {
         <div className="w-full mb-6">
           <h1 className="text-2xl font-bold">{post.title}</h1>
         </div>
-        <div className="browser-css">{post.content}</div>
+        <div id="postContent" className="browser-css">
+          {post.content}
+        </div>
       </Container>
     </div>
   ) : null;
