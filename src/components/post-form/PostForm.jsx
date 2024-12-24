@@ -6,15 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function PostForm({ post }) {
-  const { register, handleSubmit, watch, setValue, control, getValues } =
-    useForm({
-      defaultValues: {
-        title: post?.title || "",
-        slug: post?.slug || "",
-        content: post?.content || "",
-        status: post?.status || "active",
-      },
-    });
+  const { register, handleSubmit, watch, setValue, control, getValues, reset } =
+    useForm({});
 
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
@@ -61,6 +54,15 @@ function PostForm({ post }) {
     }
   };
 
+  useEffect(() => {
+    reset({
+      title: post?.title || "",
+      slug: slugTransform(post?.title) || "",
+      content: post?.content || "",
+      status: post?.status || "active",
+    });
+  }, [post]);
+
   // const slugTranform = useCallback((value) => {
   //   if (value && typeof value === "string") {
   //     const slug = value.toLowerCase().replace(/ /g, "-");
@@ -69,7 +71,8 @@ function PostForm({ post }) {
   //   }
   // });
 
-  const slugTransform = useCallback((value) => {
+  //UTIL FUNC
+  const slugTransform = (value) => {
     if (value && typeof value === "string") {
       return value
         .trim()
@@ -77,7 +80,7 @@ function PostForm({ post }) {
         .replace(/[^a-zA-Z\d\s]+/g, "-")
         .replace(/\s/g, "-");
     }
-  }, []); //it has an empty dependency array ([]), so it will only be created once when the component mounts.
+  }; //it has an empty dependency array ([]), so it will only be created once when the component mounts.
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -97,18 +100,19 @@ function PostForm({ post }) {
           label="Title :"
           placeholder="Title"
           className="mb-4"
+          onChange={(e) => {
+            setValue("slug", slugTransform(e.currentTarget.value), {
+              shouldValidate: true,
+            });
+          }}
           {...register("title", { required: true })}
         />
         <Input
           label="Slug :"
           placeholder="Slug"
-          className="mb-4"
+          className="mb-4 disabled:bg-gray-200"
+          disabled
           {...register("slug", { required: true })}
-          onInput={(e) => {
-            setValue("slug", slugTransform(e.currentTarget.value), {
-              shouldValidate: true,
-            });
-          }}
         />
         <RTE
           label="Content :"
