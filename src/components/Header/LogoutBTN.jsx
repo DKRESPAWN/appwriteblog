@@ -2,16 +2,21 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import authService from "../../appwrite/auth";
 import { logout } from "../../store/authSlice";
+import { useNavigate } from "react-router-dom";
 
 function LogoutBTN() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const logoutHandler = () => {
     authService
       .logout()
-      .then()
-      .catch(() => {
+      .then(() => {
         dispatch(logout());
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log("Error during logout:", error);
       });
   };
   return (
